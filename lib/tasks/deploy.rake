@@ -11,6 +11,7 @@ namespace :deploy do
     %x{
       cd #{Rails.root} &&
       git archive --format zip --output /tmp/release.zip #{branch} &&
+      zip -ur /tmp/release.zip vendor/cache &&
       cd #{template_dir} &&
       zip -ur /tmp/release.zip *
     }
