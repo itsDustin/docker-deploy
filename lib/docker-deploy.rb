@@ -1,9 +1,11 @@
 module DockerDeploy
-  class Railtie < Rails::Railtie
-    railtie_name :docker_deploy
+  if defined?(Rails)
+    class Railtie < Rails::Railtie
+      railtie_name :docker_deploy
 
-    rake_tasks do
-      load 'tasks/deploy.rake'
+      rake_tasks do
+        load 'tasks/deploy.rake'
+      end
     end
   end
 end

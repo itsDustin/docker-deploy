@@ -2,7 +2,7 @@ $LOAD_PATH.push File.expand_path('../lib', __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = 'docker-deploy'
-  s.version     = '1.0.0'
+  s.version     = '1.0.1'
   s.date        = '2014-11-19'
   s.summary     = 'Docker deployment utilities for AWS Elastic Beanstalk'
   s.description = ''
@@ -13,5 +13,4 @@ Gem::Specification.new do |s|
   s.license     = ''
 
   s.add_dependency 'aws-sdk-core'
-  s.add_dependency 'rails'
 end
