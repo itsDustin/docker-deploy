@@ -9,6 +9,7 @@ RUN sudo -u app bundle install --deployment --local --jobs=4 --without developme
 ADD . /home/app/webapp
 RUN chown app:app -R /home/app
 
-RUN sudo -E -u app bundle exec rake assets:precompile
+RUN [ -e /home/app/webapp/.skip_assets_precompile ] || \
+  sudo -E -u app bundle exec rake assets:precompile
 
 EXPOSE 80
