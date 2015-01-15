@@ -13,7 +13,7 @@ namespace :deploy do
       git archive --format zip --output /tmp/release.zip #{branch} &&
       zip -ur /tmp/release.zip vendor/cache &&
       cd #{template_dir} &&
-      zip -ur /tmp/release.zip *
+      zip -ur /tmp/release.zip * .??*
     }
 
     Aws::S3::Client.new.put_object(
