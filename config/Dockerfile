@@ -1,4 +1,4 @@
-FROM quay.io/ad2games/app:master
+FROM ad2games/docker-app
 
 ADD Gemfile /home/app/webapp/Gemfile
 ADD Gemfile.lock /home/app/webapp/Gemfile.lock
