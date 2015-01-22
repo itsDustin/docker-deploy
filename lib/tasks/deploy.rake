@@ -1,25 +1,26 @@
-require 'aws-sdk-core'
+GITHUB_ORG = 'ad2games'
+DEPLOY_USER = 'ad2gamesdeploy'
+DEPLOY_EMAIL = 'developers@ad2games.com'
 
 namespace :deploy do
-  desc 'creates a deployable archive'
-  task archive: :environment do
+  desc 'builds and pushes a docker container'
+  task docker: :environment do
     application = ENV['CIRCLE_PROJECT_REPONAME']
     build = ENV['CIRCLE_BUILD_NUM']
     branch = ENV['CIRCLE_BRANCH']
+    tag = "#{GITHUB_ORG}/#{application}:#{build}"
     template_dir = File.expand_path('../../../config/', __FILE__)
 
-    %x{
-      cd #{Rails.root} &&
-      git archive --format zip --output /tmp/release.zip #{branch} &&
-      zip -ur /tmp/release.zip vendor/cache &&
-      cd #{template_dir} &&
-      zip -ur /tmp/release.zip * .??*
-    }
+    unless %w(staging master).include?(branch)
+      puts 'Not on staging/master branch, not building docker container.'
+      next
+    end
 
-    Aws::S3::Client.new.put_object(
-      bucket: "#{application.gsub('_', '-')}.packages",
-      key: "#{build}.zip",
-      body: File.new('/tmp/release.zip')
-    )
+    Dir.chdir(Rails.root)
+    sh "cp -r #{template_dir}/.??* ."
+    sh "cp -r #{template_dir}/* ."
+    sh "docker login -e #{DEPLOY_EMAIL} -u #{DEPLOY_USER} -p $DOCKER_PASSWORD"
+    sh "docker build -t #{tag} ."
+    sh "docker push #{tag}"
   end
 end
