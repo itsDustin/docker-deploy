@@ -17,7 +17,6 @@ namespace :deploy do
     end
 
     Dir.chdir(Rails.root)
-    sh "cp -r #{template_dir}/.??* ."
     sh "cp -r #{template_dir}/* ."
     sh "docker login -e #{DEPLOY_EMAIL} -u #{DEPLOY_USER} -p $DOCKER_PASSWORD"
     sh "docker build -t #{tag} ."
