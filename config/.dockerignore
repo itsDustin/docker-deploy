@@ -1,6 +1,7 @@
 .bundle/
 .git/
 log/
+spec/
 tmp/
 vendor/cache/
 vendor/bundle/
