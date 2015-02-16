@@ -1,4 +1,4 @@
-FROM ad2games/docker-app
+FROM ad2games/docker-app:latest
 
 ADD . /home/app/webapp
 RUN chown app:app -R /home/app
