@@ -7,8 +7,12 @@ namespace :deploy do
   task docker: :environment do
     application = ENV['CIRCLE_PROJECT_REPONAME']
     build = ENV['CIRCLE_BUILD_NUM']
+    prev_build = ENV['CIRCLE_PREVIOUS_BUILD_NUM']
     branch = ENV['CIRCLE_BRANCH']
+
+    base_tag = "#{GITHUB_ORG}/docker-app"
     tag = "#{GITHUB_ORG}/#{application}:#{build}"
+    prev_tag = "#{GITHUB_ORG}/#{application}:#{prev_build}"
     template_dir = File.expand_path('../../../config/', __FILE__)
 
     unless %w(staging master).include?(branch)
@@ -19,7 +23,11 @@ namespace :deploy do
     Dir.chdir(Rails.root)
     sh "cp -r #{template_dir}/.??* ."
     sh "cp -r #{template_dir}/* ."
+    sh "find . -print0 |xargs -0 touch -t 1111111111"
     sh "docker login -e #{DEPLOY_EMAIL} -u #{DEPLOY_USER} -p $DOCKER_PASSWORD"
+
+    sh "docker pull #{base_tag}"
+    sh "docker pull #{prev_tag} || true"
     sh "docker build -t #{tag} ."
     sh "docker push #{tag}"
   end
