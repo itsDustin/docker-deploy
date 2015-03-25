@@ -10,7 +10,7 @@ namespace :deploy do
     prev_build = ENV['CIRCLE_PREVIOUS_BUILD_NUM']
     branch = ENV['CIRCLE_BRANCH']
 
-    base_tag = "#{GITHUB_ORG}/docker-app"
+    base_tag = "#{GITHUB_ORG}/docker-app:latest"
     tag = "#{GITHUB_ORG}/#{application}:#{build}"
     prev_tag = "#{GITHUB_ORG}/#{application}:#{prev_build}"
     template_dir = File.expand_path('../../../config/', __FILE__)
@@ -26,8 +26,8 @@ namespace :deploy do
     sh "find . -print0 |xargs -0 touch -t 1111111111"
     sh "docker login -e #{DEPLOY_EMAIL} -u #{DEPLOY_USER} -p $DOCKER_PASSWORD"
 
-    sh "docker pull #{base_tag}"
     sh "docker pull #{prev_tag} || true"
+    sh "docker pull #{base_tag}"
     sh "docker build -t #{tag} ."
     sh "docker push #{tag}"
   end

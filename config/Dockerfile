@@ -9,5 +9,3 @@ RUN chown app:app -R /home/app
 
 RUN [ -e /home/app/webapp/.skip_assets_precompile ] || \
   sudo -E -u app bundle exec rake assets:precompile RAILS_ENV=production
-
-EXPOSE 80
