@@ -11,4 +11,6 @@ Gem::Specification.new do |s|
   s.files       = Dir['lib/**/*']
   s.homepage    = 'http://www.ad2games.com'
   s.license     = ''
+
+  s.add_dependency 'rake'
 end
