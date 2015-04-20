@@ -14,6 +14,7 @@ namespace :deploy do
     tag = "#{GITHUB_ORG}/#{application}:#{build}"
     prev_tag = "#{GITHUB_ORG}/#{application}:#{prev_build}"
     template_dir = File.expand_path('../../../config/', __FILE__)
+    scripts_dir = File.expand_path('../../../scripts/', __FILE__)
 
     unless %w(staging master).include?(branch)
       puts 'Not on staging/master branch, not building docker container.'
@@ -23,6 +24,7 @@ namespace :deploy do
     Dir.chdir(Rails.root)
     sh "cp -r #{template_dir}/.??* ."
     sh "cp -r #{template_dir}/* ."
+    sh "#{scripts_dir}/update_geoip.sh"
     sh "find . -print0 |xargs -0 touch -t 1111111111"
     sh "docker login -e #{DEPLOY_EMAIL} -u #{DEPLOY_USER} -p $DOCKER_PASSWORD"
 
