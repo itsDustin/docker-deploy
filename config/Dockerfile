@@ -1,11 +1,18 @@
-FROM ad2games/docker-app:latest
+FROM ad2games/app-base:latest
+
+WORKDIR /home/app/webapp
 
 ADD Gemfile Gemfile.lock /home/app/webapp/
-RUN sudo -u app bundle install --deployment --jobs 4 --without development test && \
+RUN chown app:app Gemfile Gemfile.lock && \
+  chpst -u app bundle install --deployment --jobs 4 --without development test && \
   find vendor/bundle -name *.gem -delete
 
 ADD . /home/app/webapp/
-RUN chown app:app -R /home/app
+RUN mkdir -p public/assets log tmp && chown -R app:app public/assets log tmp
 
-RUN [ -e /home/app/webapp/.skip_assets_precompile ] || \
-  sudo -E -u app bundle exec rake assets:precompile RAILS_ENV=production
+RUN [ -e ./.skip_assets_precompile ] || \
+  chpst -u app bundle exec rake assets:precompile \
+  SECRET_KEY_BASE=noop RAILS_ENV=production DATABASE_URL=postgres://noop
+
+CMD ["/sbin/my_init"]
+EXPOSE 80

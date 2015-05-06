@@ -1,4 +1,5 @@
 GITHUB_ORG = 'ad2games'
+BASE_IMAGE = 'app-base:latest'
 DEPLOY_USER = 'ad2gamesdeploy'
 DEPLOY_EMAIL = 'developers@ad2games.com'
 
@@ -10,7 +11,7 @@ namespace :deploy do
     prev_build = ENV['CIRCLE_PREVIOUS_BUILD_NUM']
     branch = ENV['CIRCLE_BRANCH']
 
-    base_tag = "#{GITHUB_ORG}/docker-app:latest"
+    base_tag = "#{GITHUB_ORG}/#{BASE_IMAGE}"
     tag = "#{GITHUB_ORG}/#{application}:#{build}"
     prev_tag = "#{GITHUB_ORG}/#{application}:#{prev_build}"
     template_dir = File.expand_path('../../../config/', __FILE__)
