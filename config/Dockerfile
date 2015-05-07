@@ -1,5 +1,7 @@
 FROM ad2games/app-base:latest
 
+CMD ["/sbin/my_init"]
+EXPOSE 80
 WORKDIR /home/app/webapp
 
 ADD Gemfile Gemfile.lock /home/app/webapp/
@@ -13,6 +15,3 @@ RUN mkdir -p public/assets log tmp && chown -R app:app public/assets log tmp
 RUN [ -e ./.skip_assets_precompile ] || \
   chpst -u app bundle exec rake assets:precompile \
   SECRET_KEY_BASE=noop RAILS_ENV=production DATABASE_URL=postgres://noop
-
-CMD ["/sbin/my_init"]
-EXPOSE 80
