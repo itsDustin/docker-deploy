@@ -10,7 +10,7 @@ RUN chown app:app Gemfile Gemfile.lock && \
   find vendor/bundle -name *.gem -delete
 
 ADD . /home/app/webapp/
-RUN mkdir -p public/assets log tmp && chown -R app:app public/assets log tmp
+RUN mkdir -p public/assets log tmp && chown -R app:app public log tmp
 
 RUN [ -e ./.skip_assets_precompile ] || \
   chpst -u app bundle exec rake assets:precompile \
