@@ -9,6 +9,7 @@ gem 'docker-deploy', github: 'ad2games/docker-deploy'
 ```
 
 ## What It Does
+- Runs [bundler-audit](https://github.com/rubysec/bundler-audit)
 - Creates a Dockerfile using our [Docker Baseimage](https://github.com/ad2games/docker-app)
 - Installs gems
 - Precompiles Rails assets

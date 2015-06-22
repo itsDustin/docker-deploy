@@ -13,4 +13,5 @@ Gem::Specification.new do |s|
   s.license     = ''
 
   s.add_dependency 'rake'
+  s.add_dependency 'bundler-audit'
 end

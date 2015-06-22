@@ -4,8 +4,16 @@ DEPLOY_USER = 'ad2gamesdeploy'
 DEPLOY_EMAIL = 'developers@ad2games.com'
 
 namespace :deploy do
+  desc 'run bundler-audit'
+  task :bundler_audit do
+    require 'bundler/audit/cli'
+
+    Bundler::Audit::CLI.start(['update'])
+    Bundler::Audit::CLI.start(['check'])
+  end
+
   desc 'builds and pushes a docker container'
-  task docker: :environment do
+  task docker: [:bundler_audit, :environment] do
     application = ENV['CIRCLE_PROJECT_REPONAME']
     build = ENV['CIRCLE_BUILD_NUM']
     prev_build = ENV['CIRCLE_PREVIOUS_BUILD_NUM']
