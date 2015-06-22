@@ -5,7 +5,7 @@ Helper gem to create docker containers on a CI server.
 ## Setup
 Add the following line to the development group in your Gemfile:
 ```ruby
-gem 'docker-deploy', github: 'ad2games/docker-deploy'
+gem 'docker-deploy', git: 'https://github.com/ad2games/docker-deploy'
 ```
 
 ## What It Does
