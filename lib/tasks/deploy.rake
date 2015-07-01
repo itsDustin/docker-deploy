@@ -3,17 +3,21 @@ BASE_IMAGE = 'app-base:latest'
 DEPLOY_USER = 'ad2gamesdeploy'
 DEPLOY_EMAIL = 'developers@ad2games.com'
 
+def bundler_audit!
+  require 'bundler/audit/cli'
+
+  Bundler::Audit::CLI.start(['update'])
+  Bundler::Audit::CLI.start(['check'])
+end
+
 namespace :deploy do
   desc 'run bundler-audit'
   task :bundler_audit do
-    require 'bundler/audit/cli'
-
-    Bundler::Audit::CLI.start(['update'])
-    Bundler::Audit::CLI.start(['check'])
+    bundler_audit!
   end
 
   desc 'builds and pushes a docker container'
-  task docker: [:bundler_audit, :environment] do
+  task docker: [:environment] do
     application = ENV['CIRCLE_PROJECT_REPONAME']
     build = ENV['CIRCLE_BUILD_NUM']
     prev_build = ENV['CIRCLE_PREVIOUS_BUILD_NUM']
@@ -29,6 +33,8 @@ namespace :deploy do
       puts 'Not on staging/master branch, not building docker container.'
       next
     end
+
+    bundler_audit!
 
     Dir.chdir(Rails.root)
     sh "cp -r #{template_dir}/.??* ."
