@@ -47,5 +47,17 @@ namespace :deploy do
     sh "docker pull #{base_tag}"
     sh "docker build -t #{tag} ."
     sh "docker push #{tag}"
+
+    trigger_deployment(application, build, branch) if branch == 'staging'
+  end
+
+  def trigger_deployment(application, build, branch)
+    url = "https://circleci.com/api/v1/project/ad2games/deployment/tree/master?circle-token=#{ENV['CIRCLE_TOKEN']}"
+    build_params = {
+      application: application,
+      build: build,
+      environment: branch == 'master' ? 'production' : branch
+    }
+    HTTParty.post url, body: build_params.to_json, headers: { 'Content-Type' => 'application/json' }
   end
 end
