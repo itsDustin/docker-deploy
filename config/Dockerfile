@@ -12,6 +12,7 @@ RUN chown app:app Gemfile Gemfile.lock && \
 ADD . /home/app/webapp/
 RUN mkdir -p public/assets log tmp && chown -R app:app public log tmp
 
-RUN [ -e ./.skip_assets_precompile ] || \
-  chpst -u app bundle exec rake assets:precompile \
-  SECRET_KEY_BASE=noop RAILS_ENV=production DATABASE_URL=postgres://noop
+RUN [ -e .skip_assets_precompile ] || \
+  /bin/bash -c "touch .env; source .env; \
+    chpst -u app bundle exec rake assets:precompile \
+      SECRET_KEY_BASE=noop RAILS_ENV=production DATABASE_URL=postgres://noop"
