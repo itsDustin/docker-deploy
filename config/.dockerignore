@@ -1,7 +1,7 @@
 .bundle/
 .git/
+coverage/
 log/
-public/coverage/
 spec/
 tmp/
 vendor/cache/
