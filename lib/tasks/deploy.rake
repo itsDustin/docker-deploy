@@ -1,19 +1,14 @@
 GITHUB_ORG = 'ad2games'
-BASE_IMAGE = 'app-base:latest'
+BASE_IMAGE = 'docker-rails:latest'
 DEPLOY_USER = 'ad2gamesdeploy'
 DEPLOY_EMAIL = 'developers@ad2games.com'
 
-def bundler_audit!
-  require 'bundler/audit/cli'
-
-  Bundler::Audit::CLI.start(['update'])
-  Bundler::Audit::CLI.start(['check'])
-end
-
 namespace :deploy do
-  desc 'run bundler-audit'
-  task :bundler_audit do
-    bundler_audit!
+  def bundler_audit!
+    require 'bundler/audit/cli'
+
+    Bundler::Audit::CLI.start(['update'])
+    Bundler::Audit::CLI.start(['check'])
   end
 
   desc 'builds and pushes a docker container'
@@ -37,6 +32,10 @@ namespace :deploy do
     bundler_audit!
 
     Dir.chdir(Rails.root)
+    check_gem! 'puma'
+    check_gem! 'rails_12factor'
+    check_gem! 'rails_migrate_mutex'
+
     sh "cp -r #{template_dir}/.??* ."
     sh "cp -r #{template_dir}/* ."
     sh "#{scripts_dir}/update_geoip.sh"
@@ -64,5 +63,10 @@ namespace :deploy do
       headers: { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
     puts "Deployment build triggered with build params: #{response['build_parameters']}"
     puts "Build URL: #{response['build_url']}"
+  end
+
+  def check_gem!(name)
+    return if system("grep '^gem .#{name}' Gemfile")
+    fail("Please add the '#{name}' gem to your Gemfile!")
   end
 end
