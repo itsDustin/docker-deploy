@@ -5,14 +5,13 @@ Helper gem to create docker containers on a CI server.
 ## Setup
 Add the following line to the development group in your Gemfile:
 ```ruby
-gem 'docker-deploy', git: 'https://github.com/ad2games/docker-deploy'
+gem 'docker-deploy', require: false, git: 'https://github.com/ad2games/docker-deploy'
 ```
 
 ## What It Does
 - Runs [bundler-audit](https://github.com/rubysec/bundler-audit)
-- Creates a Dockerfile using our [Docker Baseimage](https://github.com/ad2games/docker-app)
-- Installs gems
-- Precompiles Rails assets
+- Checks that `puma`, `rails_12factor` and `rails_migrate_mutex` are installed
+- Creates a Dockerfile using our [Docker-Rails Baseimage](https://github.com/ad2games/docker-rails)
 - Downloads GeoIP Database (only when `GEOIP_LICENSE_KEY` ENV is set)
 - Pushes container to private Docker Hub repository tagged with the CI build number
 
@@ -27,11 +26,13 @@ needed for production deployment. That includes the git repo, spec files and
 artifacts left over from the CI test run.
 
 ## CI Setup
-Our CI builds and pushes containers on every push to the master and staging branches.
+Add the following line to the deployment step of the CI config:
+
+```
+bundle exec rake -r docker-deploy docker:deploy
+```
 
 Make sure to set `DOCKER_PASSWORD` in the CI ENV.
-
-To run it manually (please don't!), use `bundle exec rake docker:deploy`.
 
 ## License
 
