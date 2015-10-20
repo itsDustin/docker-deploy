@@ -35,6 +35,7 @@ namespace :deploy do
     check_gem! 'puma'
     check_gem! 'rails_12factor'
     check_gem! 'rails_migrate_mutex'
+    check_gem! 'rack-timeout'
 
     sh "cp -r #{template_dir}/.??* ."
     sh "cp -r #{template_dir}/* ."
