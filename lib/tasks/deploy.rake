@@ -24,7 +24,7 @@ namespace :deploy do
     template_dir = File.expand_path('../../../config/', __FILE__)
     scripts_dir = File.expand_path('../../../scripts/', __FILE__)
 
-    unless %w(staging master).include?(branch)
+    unless %w(staging master).include?(branch) || ENV['FORCE_DOCKER_DEPLOY']
       puts 'Not on staging/master branch, not building docker container.'
       next
     end
