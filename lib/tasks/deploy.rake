@@ -48,10 +48,22 @@ namespace :deploy do
     sh "docker build -t #{tag} ."
     sh "docker push #{tag}"
 
-    trigger_deployment(application, build, branch) if branch == 'staging'
+    trigger_deployment(application, build, branch)
+  end
+
+  namespace :docker do
+    desc 'triggers deployment of an existing docker container'
+    task trigger_deployment: [:environment], %i(application) do |_, args| do
+      application = args[:application]
+      build = ENV['CIRCLE_BUILD_NUM']
+      branch = ENV['CIRCLE_BRANCH']
+
+      trigger_deployment(application, build, branch)
+    end
   end
 
   def trigger_deployment(application, build, branch)
+    return unless branch == 'staging'
     url = "https://circleci.com/api/v1/project/ad2games/deployment/tree/master?circle-token=#{ENV['CIRCLE_TOKEN']}"
     build_params = {
       AUTO_DEPLOYMENT: '1',
