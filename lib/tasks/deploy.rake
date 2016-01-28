@@ -48,7 +48,14 @@ namespace :deploy do
     sh "docker build -t #{tag} ."
     sh "docker push #{tag}"
 
-    trigger_deployment(application, build, branch) if branch == 'staging'
+    next unless branch == 'staging'
+
+    deploy_apps = [application]
+    if ENV.key?('EXTRA_DEPLOY_APPS')
+      deploy_apps.concat(ENV.fetch('EXTRA_DEPLOY_APPS').split(','))
+    end
+
+    deploy_apps.uniq.each { |app| trigger_deployment(app, build, branch) }
   end
 
   def trigger_deployment(application, build, branch)
