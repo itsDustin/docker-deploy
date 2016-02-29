@@ -2,6 +2,7 @@ GITHUB_ORG = 'ad2games'
 BASE_IMAGE = 'docker-rails:latest'
 DEPLOY_USER = 'ad2gamesdeploy'
 DEPLOY_EMAIL = 'developers@ad2games.com'
+DEPLOY_ENVS = {} # No deployments triggered by default (override DEPLOY_ENVS)
 
 namespace :deploy do
   def bundler_audit!
@@ -13,10 +14,10 @@ namespace :deploy do
 
   desc 'builds and pushes a docker container'
   task docker: [:environment] do
-    application = ENV['CIRCLE_PROJECT_REPONAME']
-    build = ENV['CIRCLE_BUILD_NUM']
-    prev_build = ENV['CIRCLE_PREVIOUS_BUILD_NUM']
-    branch = ENV['CIRCLE_BRANCH']
+    application = ENV.fetch('CIRCLE_PROJECT_REPONAME')
+    build       = ENV.fetch('CIRCLE_BUILD_NUM')
+    prev_build  = ENV.fetch('CIRCLE_PREVIOUS_BUILD_NUM')
+    branch      = ENV.fetch('CIRCLE_BRANCH')
 
     base_tag = "#{GITHUB_ORG}/#{BASE_IMAGE}"
     tag = "#{GITHUB_ORG}/#{application}:#{build}"
@@ -48,29 +49,39 @@ namespace :deploy do
     sh "docker build -t #{tag} ."
     sh "docker push #{tag}"
 
-    next unless branch == 'staging'
-
-    deploy_apps = [application]
-    if ENV.key?('EXTRA_DEPLOY_APPS')
-      deploy_apps.concat(ENV.fetch('EXTRA_DEPLOY_APPS').split(','))
+    deploy_apps.uniq.each do |app|
+      deploy_envs.fetch(branch, []).each { |env| trigger_deployment(app, build, env) }
     end
-
-    deploy_apps.uniq.each { |app| trigger_deployment(app, build, branch) }
   end
 
-  def trigger_deployment(application, build, branch)
+  def trigger_deployment(application, build, env)
     url = "https://circleci.com/api/v1/project/ad2games/deployment/tree/master?circle-token=#{ENV['CIRCLE_TOKEN']}"
     build_params = {
       AUTO_DEPLOYMENT: '1',
       DEPLOYMENT_APP: application,
       DEPLOYMENT_BUILD: build,
-      DEPLOYMENT_ENV: branch == 'master' ? 'production' : branch
+      DEPLOYMENT_ENV: env
     }
     response = HTTParty.post url,
       body: { build_parameters: build_params }.to_json,
       headers: { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
     puts "Deployment build triggered with build params: #{response['build_parameters']}"
     puts "Build URL: #{response['build_url']}"
+  end
+
+  def deploy_envs
+    return DEPLOY_ENVS unless ENV.key?('DEPLOY_ENVS')
+    # e.g., DEPLOY_ENVS=master:production,staging:staging,staging:preview
+    ENV.fetch('DEPLOY_ENVS').split(',').each_with_object({}) do |pair, obj|
+      branch, env = pair.split(':')
+      obj[branch] = obj.fetch(branch, []).push(env)
+    end
+  end
+
+  def deploy_apps
+    return [ENV.fetch('CIRCLE_PROJECT_REPONAME')] unless ENV.key?('DEPLOY_APPS')
+    # e.g., DEPLOY_APPS=app1,app2
+    ENV.fetch('DEPLOY_APPS').split(',')
   end
 
   def check_gem!(name)
