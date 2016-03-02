@@ -16,7 +16,7 @@ namespace :deploy do
   task docker: [:environment] do
     application = ENV.fetch('CIRCLE_PROJECT_REPONAME')
     build       = ENV.fetch('CIRCLE_BUILD_NUM')
-    prev_build  = ENV.fetch('CIRCLE_PREVIOUS_BUILD_NUM')
+    prev_build  = ENV.fetch('CIRCLE_PREVIOUS_BUILD_NUM', false)
     branch      = ENV.fetch('CIRCLE_BRANCH')
 
     base_tag = "#{GITHUB_ORG}/#{BASE_IMAGE}"
@@ -44,7 +44,7 @@ namespace :deploy do
     sh "find . -print0 |xargs -0 touch -t 1111111111"
     sh "docker login -e #{DEPLOY_EMAIL} -u #{DEPLOY_USER} -p $DOCKER_PASSWORD"
 
-    sh "docker pull #{prev_tag} || true"
+    sh "docker pull #{prev_tag} || true" if prev_build
     sh "docker pull #{base_tag}"
     sh "docker build -t #{tag} ."
     sh "docker push #{tag}"
