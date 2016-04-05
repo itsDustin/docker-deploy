@@ -35,7 +35,7 @@ namespace :deploy do
     Dir.chdir(Rails.root)
     check_gem! 'puma'
     check_gem! 'rails_12factor'
-    check_gem! 'rails_migrate_mutex'
+    check_gem! 'rails_migrate_mutex' unless ENV['NO_DB']
     check_gem! 'rack-timeout'
 
     sh "cp -r #{template_dir}/.??* ."
