@@ -55,8 +55,6 @@ namespace :deploy do
     branch = ENV.fetch('CIRCLE_BRANCH')
     build  = ENV.fetch('CIRCLE_BUILD_NUM')
 
-    next unless branch == 'staging'
-
     deploy_apps.uniq.each do |app|
       deploy_envs.fetch(branch, []).each { |env| trigger_deployment(app, build, env) }
     end
