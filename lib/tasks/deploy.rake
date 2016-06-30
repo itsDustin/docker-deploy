@@ -52,6 +52,8 @@ namespace :deploy do
 
   desc 'triggers deployment builds on CircleCI'
   task trigger: [:environment] do
+    require 'httparty'
+
     branch = ENV.fetch('CIRCLE_BRANCH')
     build  = ENV.fetch('CIRCLE_BUILD_NUM')
 
