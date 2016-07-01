@@ -14,5 +14,4 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'rake'
   s.add_dependency 'bundler-audit'
-  s.add_dependency 'httparty'
 end

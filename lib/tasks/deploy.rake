@@ -52,7 +52,7 @@ namespace :deploy do
 
   desc 'triggers deployment builds on CircleCI'
   task trigger: [:environment] do
-    require 'httparty'
+    require 'json'
 
     branch = ENV.fetch('CIRCLE_BRANCH')
     build  = ENV.fetch('CIRCLE_BUILD_NUM')
@@ -63,16 +63,19 @@ namespace :deploy do
   end
 
   def trigger_deployment(application, build, env)
-    url = "https://circleci.com/api/v1/project/ad2games/deployment/tree/master?circle-token=#{ENV['CIRCLE_TOKEN']}"
+    uri = URI::HTTPS.build(
+      host: 'circleci.com',
+      path: '/api/v1/project/ad2games/deployment/tree/master',
+      query: URI.encode_www_form('circle-token' => ENV['CIRCLE_TOKEN']))
     build_params = {
       AUTO_DEPLOYMENT: '1',
       DEPLOYMENT_APP: application,
       DEPLOYMENT_BUILD: build,
       DEPLOYMENT_ENV: env
     }
-    response = HTTParty.post url,
-      body: { build_parameters: build_params }.to_json,
-      headers: { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
+    response = http_post(uri,
+      { build_parameters: build_params }.to_json,
+      { 'Content-Type' => 'application/json', 'Accept' => 'application/json' })
     puts "Deployment build triggered with build params: #{response['build_parameters']}"
     puts "Build URL: #{response['build_url']}"
   end
@@ -95,5 +98,13 @@ namespace :deploy do
   def check_gem!(name)
     return if system("grep '^gem .#{name}' Gemfile")
     fail("Please add the '#{name}' gem to your Gemfile!")
+  end
+
+  def http_post(uri, body, headers)
+    response = Net::HTTP.start(uri.host, use_ssl: uri.scheme == 'https') do |http|
+      http.request_post(uri.request_uri, body, headers)
+    end
+
+    JSON.parse(response.body)
   end
 end
