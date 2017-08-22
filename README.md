@@ -10,7 +10,7 @@ gem 'docker-deploy', require: false, git: 'https://github.com/ad2games/docker-de
 
 ## What It Does
 - Runs [bundler-audit](https://github.com/rubysec/bundler-audit)
-- Checks that `puma`, `rails_12factor` and `rails_migrate_mutex` are installed
+- Checks that `puma` and `rails_migrate_mutex` are installed
 - Creates a Dockerfile using our [Docker-Rails Baseimage](https://github.com/ad2games/docker-rails)
 - Downloads GeoIP Database (only when `GEOIP_LICENSE_KEY` ENV is set)
 - Pushes container to private Docker Hub repository tagged with the CI build number
