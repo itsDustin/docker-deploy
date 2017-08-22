@@ -1,7 +1,6 @@
 GITHUB_ORG = 'ad2games'
 BASE_IMAGE = 'docker-rails:latest'
 DEPLOY_USER = 'ad2gamesdeploy'
-DEPLOY_EMAIL = 'developers@ad2games.com'
 DEPLOY_ENVS = {} # No deployments triggered by default (override DEPLOY_ENVS)
 
 namespace :deploy do
@@ -41,7 +40,7 @@ namespace :deploy do
     sh "cp -r #{template_dir}/* ."
     sh "#{scripts_dir}/update_geoip.sh"
     sh "find . -print0 |xargs -0 touch -t 1111111111"
-    sh "docker login -e #{DEPLOY_EMAIL} -u #{DEPLOY_USER} -p $DOCKER_PASSWORD"
+    sh "docker login -u #{DEPLOY_USER} -p $DOCKER_PASSWORD"
 
     sh "docker pull #{prev_tag} || true" if prev_build
     sh "docker pull #{base_tag}"
