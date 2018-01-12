@@ -39,7 +39,7 @@ namespace :deploy do
     sh "cp -r #{template_dir}/.??* ."
     sh "cp -r #{template_dir}/* ."
     sh "#{scripts_dir}/update_geoip.sh"
-    sh "find . -print0 |xargs -0 touch -t 1111111111"
+    sh "find . -print0 |xargs -0 touch -h -t 1111111111"
     sh "docker login -u #{DEPLOY_USER} -p $DOCKER_PASSWORD"
 
     sh "docker pull #{prev_tag} || true" if prev_build
