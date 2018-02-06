@@ -1,5 +1,4 @@
 GITHUB_ORG = 'ad2games'
-BASE_IMAGE = 'docker-rails:latest'
 DEPLOY_USER = 'ad2gamesdeploy'
 DEPLOY_EMAIL = 'developers@ad2games.com'
 DEPLOY_ENVS = {} # No deployments triggered by default (override DEPLOY_ENVS)
@@ -12,6 +11,13 @@ namespace :deploy do
     Bundler::Audit::CLI.start(['check'])
   end
 
+  def base_image
+    ruby_version_string = File.open('.ruby-version', &:readline).chomp
+    version = Gem::Version.new(ruby_version_string).segments
+    return 'docker-rails:ruby-2.5' if version.first == 2 && version[1] >= 5
+    'docker-rails:ruby-2.4'
+  end
+
   desc 'builds and pushes a docker container'
   task docker: [:environment] do
     application = ENV.fetch('CIRCLE_PROJECT_REPONAME')
@@ -19,7 +25,7 @@ namespace :deploy do
     prev_build  = ENV.fetch('CIRCLE_PREVIOUS_BUILD_NUM', false)
     branch      = ENV.fetch('CIRCLE_BRANCH')
 
-    base_tag = "#{GITHUB_ORG}/#{BASE_IMAGE}"
+    base_tag = "#{GITHUB_ORG}/#{base_image}"
     tag = "#{GITHUB_ORG}/#{application}:#{build}"
     prev_tag = "#{GITHUB_ORG}/#{application}:#{prev_build}"
     template_dir = File.expand_path('../../../config/', __FILE__)
@@ -37,8 +43,22 @@ namespace :deploy do
     check_gem! 'rails_migrate_mutex' unless ENV['NO_DB']
     check_gem! 'rack-timeout'
 
-    sh "cp -r #{template_dir}/.??* ."
-    sh "cp -r #{template_dir}/* ."
+    Dir.foreach(template_dir) do |item|
+      next if item == '.' or item == '..'
+
+      infile = File.join(template_dir, item)
+
+      if File.extname(item) == '.erb'
+        outfile = File.join('.', File.basename(item, '.erb'))
+
+        renderer = ERB.new(File.read(infile))
+
+        File.write(outfile, renderer.result(binding))
+      else
+        FileUtils.cp(infile, '.')
+      end
+    end
+
     sh "#{scripts_dir}/update_geoip.sh"
     sh "find . -print0 |xargs -0 touch -h -t 1111111111"
 
