@@ -22,12 +22,10 @@ namespace :deploy do
   task docker: [:environment] do
     application = ENV.fetch('CIRCLE_PROJECT_REPONAME')
     build       = ENV.fetch('CIRCLE_BUILD_NUM')
-    prev_build  = ENV.fetch('CIRCLE_PREVIOUS_BUILD_NUM', false)
     branch      = ENV.fetch('CIRCLE_BRANCH')
 
     base_tag = "#{GITHUB_ORG}/#{base_image}"
     tag = "#{GITHUB_ORG}/#{application}:#{build}"
-    prev_tag = "#{GITHUB_ORG}/#{application}:#{prev_build}"
     template_dir = File.expand_path('../../../config/', __FILE__)
     scripts_dir = File.expand_path('../../../scripts/', __FILE__)
 
@@ -69,7 +67,6 @@ namespace :deploy do
       sh "docker login -u #{DEPLOY_USER} -p $DOCKER_PASSWORD"
     end
 
-    sh "docker pull #{prev_tag} || true" if prev_build
     sh "docker pull #{base_tag}"
     sh "docker build -t #{tag} ."
     sh "docker push #{tag}"
