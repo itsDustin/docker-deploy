@@ -2,7 +2,7 @@ $LOAD_PATH.push File.expand_path('../lib', __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = 'docker-deploy'
-  s.version     = '1.0.2'
+  s.version     = '1.1.0'
   s.date        = '2014-11-19'
   s.summary     = 'Docker deployment utilities for AWS Elastic Beanstalk'
   s.description = ''
