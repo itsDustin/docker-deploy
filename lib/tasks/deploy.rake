@@ -83,18 +83,13 @@ namespace :deploy do
     sh "#{scripts_dir}/update_geoip.sh"
     sh "find . -print0 |xargs -0 touch -h -t 1111111111"
 
-    # check which version version of docker (and its login command) we're dealing with
-    if `docker login --help`.include?('-e, --email')
-      sh "docker login -e #{DEPLOY_EMAIL} -u #{DEPLOY_USER} -p $DOCKER_PASSWORD"
-    else
-      sh "docker login -u #{DEPLOY_USER} -p $DOCKER_PASSWORD"
-    end
-
+    docker_login
     sh "docker pull #{base_tag}"
     sh "docker build -t #{docker_new_image_tag} ."
   end
 
   def push_image
+    docker_login
     sh "docker push #{docker_new_image_tag}"
   end
 
@@ -160,5 +155,14 @@ namespace :deploy do
     end
 
     yield
+  end
+
+  def docker_login
+    # check which version version of docker (and its login command) we're dealing with
+    if `docker login --help`.include?('-e, --email')
+      sh "docker login -e #{DEPLOY_EMAIL} -u #{DEPLOY_USER} -p $DOCKER_PASSWORD"
+    else
+      sh "docker login -u #{DEPLOY_USER} -p $DOCKER_PASSWORD"
+    end
   end
 end
