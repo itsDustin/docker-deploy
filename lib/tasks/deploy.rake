@@ -18,21 +18,44 @@ namespace :deploy do
     'docker-rails:ruby-2.4'
   end
 
+  desc 'builds a docker image'
+  task build_image: [:environment] do
+    check_build_permission do
+      build_image
+    end
+  end
+
+  desc 'pushes the docker image'
+  task push_image: [:environment] do
+    check_build_permission do
+      push_image
+    end
+  end
+
   desc 'builds and pushes a docker container'
   task docker: [:environment] do
-    application = ENV.fetch('CIRCLE_PROJECT_REPONAME')
-    build       = ENV.fetch('CIRCLE_BUILD_NUM')
-    branch      = ENV.fetch('CIRCLE_BRANCH')
+    check_build_permission do
+      build_image
+      push_image
+    end
+  end
 
+  desc 'triggers deployment builds on CircleCI'
+  task trigger: [:environment] do
+    require 'json'
+
+    branch = ENV.fetch('CIRCLE_BRANCH')
+    build  = ENV.fetch('CIRCLE_BUILD_NUM')
+
+    deploy_apps.uniq.each do |app|
+      deploy_envs.fetch(branch, []).each { |env| trigger_deployment(app, build, env) }
+    end
+  end
+
+  def build_image
     base_tag = "#{GITHUB_ORG}/#{base_image}"
-    tag = "#{GITHUB_ORG}/#{application}:#{build}"
     template_dir = File.expand_path('../../../config/', __FILE__)
     scripts_dir = File.expand_path('../../../scripts/', __FILE__)
-
-    unless %w(staging master).include?(branch) || ENV['FORCE_DOCKER_DEPLOY']
-      puts 'Not on staging/master branch, not building docker container.'
-      next
-    end
 
     bundler_audit!
 
@@ -68,20 +91,11 @@ namespace :deploy do
     end
 
     sh "docker pull #{base_tag}"
-    sh "docker build -t #{tag} ."
-    sh "docker push #{tag}"
+    sh "docker build -t #{docker_new_image_tag} ."
   end
 
-  desc 'triggers deployment builds on CircleCI'
-  task trigger: [:environment] do
-    require 'json'
-
-    branch = ENV.fetch('CIRCLE_BRANCH')
-    build  = ENV.fetch('CIRCLE_BUILD_NUM')
-
-    deploy_apps.uniq.each do |app|
-      deploy_envs.fetch(branch, []).each { |env| trigger_deployment(app, build, env) }
-    end
+  def push_image
+    sh "docker push #{docker_new_image_tag}"
   end
 
   def trigger_deployment(application, build, env)
@@ -128,5 +142,23 @@ namespace :deploy do
     end
 
     JSON.parse(response.body)
+  end
+
+  def docker_new_image_tag
+    application = ENV.fetch('CIRCLE_PROJECT_REPONAME')
+    build       = ENV.fetch('CIRCLE_BUILD_NUM')
+
+    "#{GITHUB_ORG}/#{application}:#{build}"
+  end
+
+  def check_build_permission
+    branch = ENV.fetch('CIRCLE_BRANCH')
+
+    unless %w(staging master).include?(branch) || ENV['FORCE_DOCKER_DEPLOY']
+      puts 'Not on staging/master branch, not building docker container.'
+      return
+    end
+
+    yield
   end
 end
