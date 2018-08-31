@@ -8,8 +8,7 @@ namespace :deploy do
     require 'bundler/audit/cli'
 
     Bundler::Audit::CLI.start(['update'])
-    # Remove the ignore option once https://github.com/rubyzip/rubyzip/issues/369 is fixed
-    Bundler::Audit::CLI.start(['-i=CVE-2018-1000544', 'check'])
+    Bundler::Audit::CLI.start(['check'])
   end
 
   def base_image
