@@ -12,10 +12,7 @@ namespace :deploy do
   end
 
   def base_image
-    ruby_version_string = File.open('.ruby-version', &:readline).chomp
-    version = Gem::Version.new(ruby_version_string).segments
-    return 'docker-rails:ruby-2.5' if version.first == 2 && version[1] >= 5
-    'docker-rails:ruby-2.4'
+    'docker-rails:staging'
   end
 
   desc 'builds a docker image'
