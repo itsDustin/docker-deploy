@@ -87,8 +87,8 @@ namespace :deploy do
     sh "docker pull #{base_tag}"
     sh <<-SH
       docker build \
-        --build-arg BUGSNAG_API_KEY=#{ENV.fetch('BUGSNAG_API_KEY')} \
-        --build-arg CIRCLE_BUILD_NUM=#{ENV.fetch('CIRCLE_BUILD_NUM')} \
+        --build-arg BUGSNAG_API_KEY \
+        --build-arg CIRCLE_BUILD_NUM \
         -t #{docker_new_image_tag} \
         .
     SH
