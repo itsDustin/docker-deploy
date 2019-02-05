@@ -85,7 +85,13 @@ namespace :deploy do
 
     docker_login
     sh "docker pull #{base_tag}"
-    sh "docker build -t #{docker_new_image_tag} ."
+    sh <<-SH
+      docker build \
+        --build-arg BUGSNAG_API_KEY \
+        --build-arg BUGSNAG_APP_VERSION \
+        -t #{docker_new_image_tag} \
+        .
+    SH
   end
 
   def push_image
