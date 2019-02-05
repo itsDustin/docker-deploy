@@ -88,7 +88,7 @@ namespace :deploy do
     sh <<-SH
       docker build \
         --build-arg BUGSNAG_API_KEY \
-        --build-arg CIRCLE_BUILD_NUM \
+        --build-arg BUGSNAG_APP_VERSION \
         -t #{docker_new_image_tag} \
         .
     SH
