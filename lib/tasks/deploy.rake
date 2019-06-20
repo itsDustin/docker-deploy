@@ -89,7 +89,6 @@ namespace :deploy do
       docker build \
         --build-arg BUGSNAG_API_KEY \
         --build-arg BUGSNAG_APP_VERSION \
-        --build-arg BUNDLE_LOCAL \
         -t #{docker_new_image_tag} \
         .
     SH
