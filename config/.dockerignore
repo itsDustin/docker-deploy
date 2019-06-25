@@ -1,4 +1,3 @@
-.bundle/
 .git/
 client/
 coverage/
@@ -8,5 +7,4 @@ tmp/
 vendor/assets/.bowerrc
 vendor/assets/bower.json
 vendor/assets/bower_components/
-vendor/cache/
 vendor/bundle/
