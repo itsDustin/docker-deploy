@@ -1,6 +1,6 @@
-GITHUB_ORG = 'ad2games'
+GITHUB_ORG = 'ComboStrikeHQ'
 DEPLOY_USER = 'ad2gamesdeploy'
-DEPLOY_EMAIL = 'developers@ad2games.com'
+DEPLOY_EMAIL = 'developers@combostrike.com'
 DEPLOY_ENVS = {} # No deployments triggered by default (override DEPLOY_ENVS)
 
 namespace :deploy do
@@ -16,6 +16,10 @@ namespace :deploy do
     version = Gem::Version.new(ruby_version_string).segments
     return 'docker-rails:ruby-2.5' if version.first == 2 && version[1] >= 5
     'docker-rails:ruby-2.4'
+  end
+
+  def github_org
+    GITHUB_ORG.downcase
   end
 
   desc 'builds a docker image'
@@ -53,7 +57,7 @@ namespace :deploy do
   end
 
   def build_image
-    base_tag = "#{GITHUB_ORG}/#{base_image}"
+    base_tag = "#{github_org}/#{base_image}"
     template_dir = File.expand_path('../../../config/', __FILE__)
     scripts_dir = File.expand_path('../../../scripts/', __FILE__)
 
@@ -102,7 +106,7 @@ namespace :deploy do
   def trigger_deployment(application, build, env)
     uri = URI::HTTPS.build(
       host: 'circleci.com',
-      path: '/api/v1/project/ad2games/deployment/tree/master',
+      path: '/api/v1/project/ComboStrikeHQ/deployment/tree/master',
       query: URI.encode_www_form('circle-token' => ENV['CIRCLE_TOKEN']))
     build_params = {
       AUTO_DEPLOYMENT: '1',
@@ -149,7 +153,7 @@ namespace :deploy do
     application = ENV.fetch('CIRCLE_PROJECT_REPONAME')
     build       = ENV.fetch('CIRCLE_BUILD_NUM')
 
-    "#{GITHUB_ORG}/#{application}:#{build}"
+    "#{github_org}/#{application}:#{build}"
   end
 
   def check_build_permission
