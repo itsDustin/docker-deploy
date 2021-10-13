@@ -8,7 +8,7 @@ namespace :deploy do
     require 'bundler/audit/cli'
 
     Bundler::Audit::CLI.start(['update'])
-    Bundler::Audit::CLI.start(['check', '--ignore', 'CVE-2015-9284'])
+    Bundler::Audit::CLI.start(['check', '--ignore', 'CVE-2015-9284', "CVE-2019-18409"])
   end
 
   def base_image
