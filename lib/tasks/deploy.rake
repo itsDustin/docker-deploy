@@ -104,9 +104,10 @@ namespace :deploy do
   end
 
   def trigger_deployment(application, build, env)
+    deployment_branch = ENV.fetch('DEPLOYMENT_BRANCH', 'master')
     uri = URI::HTTPS.build(
       host: 'circleci.com',
-      path: '/api/v1/project/ComboStrikeHQ/deployment/tree/master',
+      path: "/api/v1/project/ComboStrikeHQ/deployment/tree/#{deployment_branch}",
       query: URI.encode_www_form('circle-token' => ENV['CIRCLE_TOKEN']))
     build_params = {
       AUTO_DEPLOYMENT: '1',
