@@ -5,17 +5,17 @@ DEPLOY_ENVS = {} # No deployments triggered by default (override DEPLOY_ENVS)
 
 namespace :deploy do
   def bundler_audit!
-    require 'bundler/audit/cli'
+    require 'bundler/audit/task'
+    Bundler::Audit::Task.new
 
-    Bundler::Audit::CLI.start(['update'])
-    Bundler::Audit::CLI.start(['check', '--ignore CVE-2015-9284'])
+    Rake::Task['bundle:audit:update'].invoke
+    Rake::Task['bundle:audit'].invoke
   end
 
   def base_image
     ruby_version_string = File.open('.ruby-version', &:readline).chomp
-    version = Gem::Version.new(ruby_version_string).segments
-    return 'docker-rails:ruby-2.5' if version.first == 2 && version[1] >= 5
-    'docker-rails:ruby-2.4'
+    version = Gem::Version.new(ruby_version_string).segments.take(2).join('.')
+    "docker-rails:ruby-#{version}"
   end
 
   def github_org
