@@ -13,9 +13,10 @@ namespace :deploy do
   end
 
   def base_image
-    ruby_version_string = File.open('.ruby-version', &:readline).chomp
-    version = Gem::Version.new(ruby_version_string).segments.take(2).join('.')
-    "docker-rails:ruby-#{version}"
+    # ruby_version_string = File.open('.ruby-version', &:readline).chomp
+    # version = Gem::Version.new(ruby_version_string).segments.take(2).join('.')
+    # "docker-rails:ruby-#{version}"
+    "docker-rails:update-node"
   end
 
   def github_org
